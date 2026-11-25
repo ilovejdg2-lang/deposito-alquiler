@@ -28,6 +28,18 @@ El contrato recibe el depósito en un token de Stellar y solo lo suelta de dos m
 
 Nadie más puede abrir el depósito, depositar ni mover el dinero. Si el contrato ya se cerró, no se puede volver a mover.
 
+## Verlo en la red
+
+El contrato ya está en la testnet de Stellar, con un depósito de 5 XLM en custodia. El estado es `EnCustodia` y el saldo del contrato es 50.000.000 (5 XLM).
+
+- [Abrir el contrato en Stellar Expert](https://stellar.expert/explorer/testnet/contract/CDRJTDQO3BZSCNDT2BMINXB34A4XQJ4AZRXQJ3IKH2KCIJEBXMTFOJIK)
+- [Abrirlo en Stellar Lab](https://lab.stellar.org/r/testnet/contract/CDRJTDQO3BZSCNDT2BMINXB34A4XQJ4AZRXQJ3IKH2KCIJEBXMTFOJIK)
+
+Ahí se ve el contrato `CDRJTDQO3BZSCNDT2BMINXB34A4XQJ4AZRXQJ3IKH2KCIJEBXMTFOJIK`, las transacciones de `crear` y `depositar`, y los 5 XLM que quedaron guardados.
+
+- Arrendador: `GCZDY6BSRP65RGUS43YBE2S4GPAYKIXGUKDCQOPFXQPGYWFRUPQLIC5R`
+- Inquilino: `GDNR2FLJ2SW4Q7W3S46FDA27IM3YYAJLMIYUG55I32G6SAAMFRVWA2YG`
+
 ## Cómo correrlo
 
 Hace falta [Rust](https://rustup.rs/) estable. Las pruebas no necesitan desplegar nada en la red.
