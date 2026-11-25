@@ -6,51 +6,53 @@ Esta entrega es una práctica individual. No es la idea de la hackathon.
 
 ## El problema
 
-En Costa Rica, cuando alguien alquila un cuarto o un apartamento, deja un depósito. Casi siempre es un mes de alquiler.
+En Costa Rica, quien alquila un cuarto o un apartamento (el inquilino) deja un depósito. Casi siempre es un mes de alquiler.
 
-Ese dinero queda en la cuenta de quien alquila. Si al final hay un pleito —un daño, un recibo pendiente, o un “no te lo devuelvo”— no hay un lugar neutral que tenga la plata mientras se ponen de acuerdo. Una de las dos personas depende de la buena fe de la otra.
+Hoy ese dinero se transfiere a la cuenta personal de quien alquila el lugar (el arrendador). La devolución queda en una promesa: “al final te lo devuelvo si todo está bien”.
 
-## Por qué este problema
+Si después hay un daño, un recibo pendiente o un “no te lo devuelvo”, no existe un tercero que tenga la plata. Todo el riesgo lo carga una de las dos personas. El problema es real: pasa en alquileres de todos los días y no hay un lugar neutral donde dejar el depósito mientras se ponen de acuerdo.
 
-Pasa de verdad, y es pequeño. Caben dos personas, un monto y dos finales posibles. No hace falta un sistema de muchos alquileres: un despliegue del contrato es un solo contrato de arrendamiento.
+## Por qué lo elegí
+
+Es concreto y pequeño. Hay dos personas, un monto y solo dos finales. Cabe en un solo contrato: un despliegue es un solo alquiler. No intenta resolver todos los alquileres del país, ni es la idea de la hackathon.
 
 ## Qué hace
 
-El contrato recibe el depósito en un token de Stellar y solo lo suelta de dos maneras: el arrendador lo devuelve completo, o arrendador e inquilino firman un reparto.
+El contrato hace de tercero. Recibe el depósito en un token de Stellar y solo lo suelta de dos maneras: el arrendador lo devuelve completo, o arrendador e inquilino firman cuánto se queda cada uno.
 
 ## Cómo funciona
 
-1. El arrendador llama a `crear` con su dirección, la del inquilino, el token y el monto del depósito. El monto va en la unidad mínima del token. Si el token es XLM, 1 XLM son 10.000.000.
+El contrato usa lo visto en clase: las claves van en un `DataKey`, los datos viven en el storage de la instancia, se renueva el tiempo de vida de esos datos y cada acción la firma quien corresponde con `require_auth`.
+
+1. El arrendador llama a `crear` con su dirección, la del inquilino, el token y el monto. El monto va en la unidad mínima del token. Si el token es XLM, 1 XLM son 10.000.000. Solo el arrendador puede firmar este paso, y las dos direcciones tienen que ser distintas.
 2. El inquilino llama a `depositar`. El token pasa de su cuenta al contrato. El estado queda en custodia.
 3. A partir de ahí solo hay dos salidas:
    - `devolver`: la firma el arrendador. El inquilino recibe todo.
-   - `acordar_reparto`: la firman los dos. Se indica cuánto se queda el arrendador (por daños u otra deuda). El resto vuelve al inquilino.
+   - `acordar_reparto`: la firman los dos. Se indica cuánto se queda el arrendador. El resto vuelve al inquilino. Ese monto no puede ser mayor que el depósito.
 
-Nadie más puede abrir el depósito, depositar ni mover el dinero. Si el contrato ya se cerró, no se puede volver a mover.
+Si el contrato ya se cerró, no se puede volver a mover el dinero.
 
 ## Verlo en la red
 
-El contrato ya está en la testnet de Stellar, con un depósito de 5 XLM en custodia. El estado es `EnCustodia` y el saldo del contrato es 50.000.000 (5 XLM).
+Ya hay un despliegue en la testnet, con 5 XLM en custodia. En el explorador el estado sale como `1`, que es `EnCustodia`, y el saldo es `50000000` (5 XLM).
 
-- [Abrir el contrato en Stellar Expert](https://stellar.expert/explorer/testnet/contract/CDRJTDQO3BZSCNDT2BMINXB34A4XQJ4AZRXQJ3IKH2KCIJEBXMTFOJIK)
-- [Abrirlo en Stellar Lab](https://lab.stellar.org/r/testnet/contract/CDRJTDQO3BZSCNDT2BMINXB34A4XQJ4AZRXQJ3IKH2KCIJEBXMTFOJIK)
+- [Ver el contrato en Stellar Expert](https://stellar.expert/explorer/testnet/contract/CDRJTDQO3BZSCNDT2BMINXB34A4XQJ4AZRXQJ3IKH2KCIJEBXMTFOJIK)
+- [Verlo en Stellar Lab](https://lab.stellar.org/r/testnet/contract/CDRJTDQO3BZSCNDT2BMINXB34A4XQJ4AZRXQJ3IKH2KCIJEBXMTFOJIK)
 
-Ahí se ve el contrato `CDRJTDQO3BZSCNDT2BMINXB34A4XQJ4AZRXQJ3IKH2KCIJEBXMTFOJIK`, las transacciones de `crear` y `depositar`, y los 5 XLM que quedaron guardados.
+Contrato: `CDRJTDQO3BZSCNDT2BMINXB34A4XQJ4AZRXQJ3IKH2KCIJEBXMTFOJIK`
 
 - Arrendador: `GCZDY6BSRP65RGUS43YBE2S4GPAYKIXGUKDCQOPFXQPGYWFRUPQLIC5R`
 - Inquilino: `GDNR2FLJ2SW4Q7W3S46FDA27IM3YYAJLMIYUG55I32G6SAAMFRVWA2YG`
 
 ## Cómo correrlo
 
-Hace falta [Rust](https://rustup.rs/) estable. Las pruebas no necesitan desplegar nada en la red.
-
-En la carpeta del proyecto:
+Hace falta [Rust](https://rustup.rs/) estable. En la carpeta del proyecto:
 
 ```bash
 cargo test
 ```
 
-Para compilar el Wasm del contrato hace falta, además, la [CLI de Stellar](https://developers.stellar.org/docs/tools/cli/install) de la misma serie que el SDK (aquí `soroban-sdk` 28) y el target `wasm32v1-none`:
+Eso ejecuta las pruebas sin desplegar nada. Para compilar el Wasm también hace falta la [CLI de Stellar](https://developers.stellar.org/docs/tools/cli/install) 28 y el target `wasm32v1-none`:
 
 ```bash
 rustup target add wasm32v1-none
@@ -61,7 +63,7 @@ El archivo queda en `target/wasm32v1-none/release/deposito_alquiler.wasm`.
 
 ## Pruebas
 
-`cargo test` corre estos casos:
+`cargo test` corre estos casos y todos pasan:
 
 - `crear` guarda al arrendador, al inquilino, el token y el monto.
 - `depositar` mueve el token al contrato y deja el estado en custodia.
